@@ -74,7 +74,7 @@ def file_scanner(api,file_path,type_file):
                     else:
                         continue # hash is clear.
                         
-                time.sleep(2)
+                time.sleep(15)
             
             else:
                 print(errors(status,hash,type_file))
@@ -109,7 +109,7 @@ def url_scanner(api,url_path,type_url):
                     else:
                         continue # url is clear.
                         
-                time.sleep(2)
+                time.sleep(15)
             
             else:
                 print(errors(status,url_vt,type_url))
@@ -160,7 +160,7 @@ def domain_scanner(api,domain_path,type_domain,whitelist_file_path):
                 elif response_code == 0:
                     print(f"{domain} Domain is not found in VT database.")
 
-                time.sleep(2)
+                time.sleep(15)
 
             else:
                 print(errors(status,domain,type_domain))
