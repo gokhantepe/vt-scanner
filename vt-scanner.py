@@ -18,23 +18,23 @@ def errors(status,value_for_scan,scan_type):
             print("There is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
             time.sleep(45)
 
-            return "This hash is saved your current directory for next scan.\n\n"
+            return f"{value_for_scan} is saved your current directory for next scan.\n\n"
 
         elif scan_type=="url":
             unscanned_urls.append(value_for_scan+"\n")
             
-            print("There is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
+            print("\nThere is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
             time.sleep(45)
 
-            return "This url is saved your current directory for next scan.\n\n"
+            return f"{value_for_scan} is saved your current directory for next scan.\n\n"
 
         elif scan_type=="domain":
             unscanned_domains.append(value_for_scan+"\n")
             
-            print("There is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
+            print("\nThere is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
             time.sleep(45)
 
-            return "This domain is saved your current directory for next scan.\n\n"
+            return f"{value_for_scan} is saved your current directory for next scan.\n"
             
     elif status == 400:
         sys.exit("""Bad request. Your request was somehow incorrect.
@@ -44,7 +44,7 @@ def errors(status,value_for_scan,scan_type):
         sys.exit("You are not allowed to perform the requested operation.")
 
     else:
-        return "Unkown HTTP error.\n" + str(status)
+        sys.exit("Unkown HTTP error.\n" + str(status))
 
 
 def file_scanner(api,file_path,type_file):
@@ -62,7 +62,7 @@ def file_scanner(api,file_path,type_file):
                 response_code = values["response_code"]
 
                 if response_code == 0:
-                    print(params["resource"] + "\n" + "File hash is not found in VT database.\n\n")
+                    print(f"{params['resource']}\nFile hash is not found in VT database.\n\n")
 
                 else:
                     positive_values = values["positives"]
@@ -74,12 +74,12 @@ def file_scanner(api,file_path,type_file):
                     else:
                         continue # hash is clear.
                         
-                time.sleep(15)
+                time.sleep(2)
             
             else:
                 print(errors(status,hash,type_file))
 
-    file_operations("unscanned_hashes.txt","w",unscanned_hashes)
+    file_operations("file_results\\unscanned_hashes.txt","w",unscanned_hashes)
 
 
 def url_scanner(api,url_path,type_url):
@@ -109,19 +109,19 @@ def url_scanner(api,url_path,type_url):
                     else:
                         continue # url is clear.
                         
-                time.sleep(15)
+                time.sleep(2)
             
             else:
                 print(errors(status,url_vt,type_url))
 
-    file_operations("unscanned_urls.txt","w",unscanned_urls)
+    file_operations("url_result\\unscanned_urls.txt","w",unscanned_urls)
 
 
 def domain_scanner(api,domain_path,type_domain,whitelist_file_path):
     url = 'https://www.virustotal.com/vtapi/v2/domain/report'
     total_detected_urls_score=0
 
-    file_operations("detected_urls.txt","w","Detected Urls          |          Score\n\n")
+    file_operations("domain_results\\detected_iocs.txt","w","Detected          ----->          Score\n\n")
 
     with open(domain_path,"r",encoding="utf-8") as file1:
         for domain in file1.read().split():
@@ -142,28 +142,41 @@ def domain_scanner(api,domain_path,type_domain,whitelist_file_path):
                         with open(whitelist_file_path,"r") as file2:
                             if domain not in file2.read().split():
                                 print(f"{domain} Domain is malicious. Score: {total_detected_urls_score}")
-                                    
+
+                                detected_iocs.append(f"Detected urls associated with {domain}\n{hypen}")
                                 for i in range(0,len(values["detected_urls"])):
-                                    detected_urls.append(values["detected_urls"][i]["url"] + "    ----->    " + str(values["detected_urls"][i]["positives"]) + "\n")
-    
-                                detected_urls.append("""\n************************************************************************************************************************************\n
-                                ************************************************************************************************************************************\n\n""")
+                                    detected_iocs.append(values["detected_urls"][i]["url"] + "    ----->    " + str(values["detected_urls"][i]["positives"]) + "\n")
 
-                                print("Detected urls and its score saved your current directory.\n\n")
+                                detected_iocs.append(f"\nDetected downloaded samples associated with {domain}\n{hypen}")
+                                for i in range(0,len(values["detected_downloaded_samples"])):
+                                    detected_iocs.append(values["detected_downloaded_samples"][i]["sha256"]  + "    ----->    " + str(values["detected_downloaded_samples"][i]["positives"]) + "\n")
+                                    detected_sampe_hashes.append(values["detected_downloaded_samples"][i]["sha256"]+"\n")
 
+                                detected_iocs.append(asterisk+"\n"+asterisk+"\n"+asterisk)
+                    
                     else:
                         print(f"{domain} is clean")    # Domain is clean.
                     
                 elif response_code == 0:
-                    print(f"{domain}\nDomain is not found in VT database.\n\n")
+                    print(f"{domain} Domain is not found in VT database.")
 
-                time.sleep(15)
+                time.sleep(2)
 
             else:
                 print(errors(status,domain,type_domain))
 
-    file_operations("detected_urls.txt","a",detected_urls)
-    file_operations("unscanned_domains.txt","w",unscanned_domains)
+    print("\nDetected urls and downloaded samples with their scores associated to the suspicious domains are saved in your current directory by the name of detected_iocs.txt.\n")
+
+    if(len(detected_iocs)==0):
+        file_operations("domain_results\\detected_iocs.txt","a","There is no detected suspicious url and sample associated with domains.")
+    else:
+        file_operations("domain_results\\detected_iocs.txt","a",detected_iocs)
+        file_operations("domain_results\\detected_sample_hashes.txt","w",detected_sampe_hashes)
+
+    if(len(unscanned_domains)==0):
+        file_operations("domain_results\\unscanned_domains.txt","w","All domains succesfully scanned, congrats :)")
+    else:
+        file_operations("domain_results\\unscanned_domains.txt","w",unscanned_domains)
 
 
 
@@ -194,9 +207,12 @@ def main():
         
 
 if __name__=="__main__":
+    asterisk="\n\n************************************************************************************************************************************\n\n"
+    hypen="------------------------------------------------------------------------------------------------------------------------------------\n"
     unscanned_hashes=list()
     unscanned_urls=list()
     unscanned_domains=list()
-    detected_urls=list()
+    detected_iocs=list()
+    detected_sampe_hashes=list()
     main()
-    
+                          
