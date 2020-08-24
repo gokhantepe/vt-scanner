@@ -35,6 +35,14 @@ def errors(status,value_for_scan,scan_type):
             time.sleep(45)
 
             return f"{value_for_scan} is saved your current directory for next scan.\n"
+
+        elif scan_type=="ip":
+            unscanned_ips.append(value_for_scan+"\n")
+            
+            print("\nThere is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
+            time.sleep(45)
+
+            return f"{value_for_scan} is saved your current directory for next scan.\n"
             
     elif status == 400:
         sys.exit("""Bad request. Your request was somehow incorrect.
@@ -48,31 +56,37 @@ def errors(status,value_for_scan,scan_type):
 
 
 def file_scanner(api,file_path,type_file):
-    url = 'https://www.virustotal.com/vtapi/v2/file/report'
+    url = 'https://www.virustotal.com/api/v3/files/'
+    headers = {'x-apikey':'4cd089f9fbe2593c867c8857b871f0f0f51c8d710d880b9bf2d61f7dc9132f5c'}
 
-    with open(file_path,"r",encoding="utf-8") as file:
-        for hash in file.read().split():
-            params = {'apikey': api, 'resource': hash.strip()}
-
-            response = requests.get(url, params=params)
+    with open(file_path,"r",encoding="utf-8") as r_file:
+        for hash in r_file.read().split():
+            response = requests.get(url+hash, headers=headers)
             status = response.status_code
             
             if status == 200:
                 values = response.json()
-                response_code = values["response_code"]
-
-                if response_code == 0:
-                    print(f"{params['resource']}\nFile hash is not found in VT database.\n\n")
-
-                else:
-                    positive_values = values["positives"]
-
-                    if positive_values > 10:
-                        print(params["resource"] + "\n" + "This hash value is suspicious.")
-                        print("URL for suspicious hash: " + values["permalink"] + "\n\n")
+                
+                try:
+                    if values['data']['attributes']['last_analysis_stats']['malicious']>5:
+                        print(f"""{hash} is malicious.\n
+                        Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
+                        Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        VT Url for domain: {values['data']['links']['self']}
+                        """)
 
                     else:
-                        continue # hash is clear.
+                        print(f"""{hash} is clean.\n
+                        Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
+                        Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        VT Url for domain: {values['data']['links']['self']}
+                        """)
+
+                except Exception:
+                    # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
+                    print(values['error']['message'])
                         
                 time.sleep(15)
             
@@ -85,8 +99,8 @@ def file_scanner(api,file_path,type_file):
 def url_scanner(api,url_path,type_url):
     url = 'https://www.virustotal.com/vtapi/v2/url/report'
 
-    with open(url_path,"r",encoding="utf-8") as file:
-        for url_vt in file.read().split():
+    with open(url_path,"r",encoding="utf-8") as r_file:
+        for url_vt in r_file.read().split():
             params = {'apikey': api, 'resource':url_vt.strip()}
 
             response = requests.get(url, params=params)
@@ -117,66 +131,93 @@ def url_scanner(api,url_path,type_url):
     file_operations("url_result\\unscanned_urls.txt","w",unscanned_urls)
 
 
-def domain_scanner(api,domain_path,type_domain,whitelist_file_path):
-    url = 'https://www.virustotal.com/vtapi/v2/domain/report'
-    total_detected_urls_score=0
-
-    file_operations("domain_results\\detected_iocs.txt","w","Detected          ----->          Score\n\n")
-
-    with open(domain_path,"r",encoding="utf-8") as file1:
-        for domain in file1.read().split():
-            params = {'apikey':api, 'domain':domain}
-                
-            response = requests.get(url, params=params)
+def domain_scanner(api,domain_path,type_domain):
+    url = 'https://www.virustotal.com/api/v3/domains/'
+    headers = {'x-apikey':'4cd089f9fbe2593c867c8857b871f0f0f51c8d710d880b9bf2d61f7dc9132f5c'}
+    
+    with open(domain_path,"r",encoding="utf-8") as r_file:
+        for domain in r_file.read().split():
+            response = requests.get(url + domain.strip(), headers=headers)
             status=response.status_code
             
             if status == 200:
                 values = response.json()
-                response_code = values["response_code"]
                 
-                if response_code == 1:
-                    for i in range(0,len(values["detected_urls"])):
-                        total_detected_urls_score+=values["detected_urls"][i]["positives"]
+                try:
+                    if values['data']['attributes']['last_analysis_stats']['malicious']>5:
+                        print(f"""{domain} is malicious.\n
+                        Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
+                        Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        VT Url for domain: {values['data']['links']['self']}
+                        """)
 
-                    if total_detected_urls_score>len(values["detected_urls"]):
-                        with open(whitelist_file_path,"r") as file2:
-                            if domain not in file2.read().split():
-                                print(f"{domain} Domain is malicious. Score: {total_detected_urls_score}")
-
-                                detected_iocs.append(f"Detected urls associated with {domain}\n{hypen}")
-                                for i in range(0,len(values["detected_urls"])):
-                                    detected_iocs.append(values["detected_urls"][i]["url"] + "    ----->    " + str(values["detected_urls"][i]["positives"]) + "\n")
-
-                                detected_iocs.append(f"\nDetected downloaded samples associated with {domain}\n{hypen}")
-                                for i in range(0,len(values["detected_downloaded_samples"])):
-                                    detected_iocs.append(values["detected_downloaded_samples"][i]["sha256"]  + "    ----->    " + str(values["detected_downloaded_samples"][i]["positives"]) + "\n")
-                                    detected_sampe_hashes.append(values["detected_downloaded_samples"][i]["sha256"]+"\n")
-
-                                detected_iocs.append(asterisk+"\n"+asterisk+"\n"+asterisk)
-                    
                     else:
-                        print(f"{domain} is clean")    # Domain is clean.
-                    
-                elif response_code == 0:
-                    print(f"{domain} Domain is not found in VT database.")
+                        print(f"""{domain} is clean.\n
+                        Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
+                        Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        VT Url for domain: {values['data']['links']['self']}
+                        """)
 
+                except Exception:
+                    # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
+                    print(values['error']['message'])
+                    
                 time.sleep(15)
 
             else:
                 print(errors(status,domain,type_domain))
 
-    print("\nDetected urls and downloaded samples with their scores associated to the suspicious domains are saved in your current directory by the name of detected_iocs.txt.\n")
-
-    if(len(detected_iocs)==0):
-        file_operations("domain_results\\detected_iocs.txt","a","There is no detected suspicious url and sample associated with domains.")
-    else:
-        file_operations("domain_results\\detected_iocs.txt","a",detected_iocs)
-        file_operations("domain_results\\detected_sample_hashes.txt","w",detected_sampe_hashes)
 
     if(len(unscanned_domains)==0):
         file_operations("domain_results\\unscanned_domains.txt","w","All domains succesfully scanned, congrats :)")
     else:
         file_operations("domain_results\\unscanned_domains.txt","w",unscanned_domains)
+
+
+def ip_scanner(api,ip_path,type_ip):
+    url = 'https://www.virustotal.com/api/v3/ip_addresses/'
+    headers = {'x-apikey':'4cd089f9fbe2593c867c8857b871f0f0f51c8d710d880b9bf2d61f7dc9132f5c'} 
+    
+    with open(ip_path,"r",encoding="utf-8") as r_file:
+        for ip in r_file.read().split():
+            response = requests.get(url + ip.strip(), headers=headers)
+            status=response.status_code
+            
+            if status == 200:
+                values = response.json()
+                
+                try:
+                    if values['data']['attributes']['last_analysis_stats']['malicious']>5:
+                        print(f"""{ip} is malicious.\n
+                        Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
+                        Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        VT Url for domain: {values['data']['links']['self']}
+                        """)
+
+                    else:
+                        print(f"""{ip} is clean.\n
+                        Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
+                        Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        VT IP for domain: {values['data']['links']['self']}
+                        """)
+
+                except Exception:
+                    # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
+                    print(values['error']['message'])
+                    
+                time.sleep(15)
+
+            else:
+                print(errors(status,ip,type_ip))
+
+    if(len(unscanned_ips)==0):
+        file_operations("ip_results\\unscanned_ips.txt","w","All IPs succesfully scanned, congrats :)")
+    else:
+        file_operations("ip_results\\unscanned_ips.txt","w",unscanned_ips)
 
 
 
@@ -187,8 +228,7 @@ def main():
     parser = argparse.ArgumentParser(description='You can submit multiple file hashes and urls with this script.')
     parser.add_argument("-t","--type",help="You should type what you want for submitting VT (url or file or domain).",required=True)
     parser.add_argument("-p","--path",help="Type file path",required=True)
-    parser.add_argument("-w","--whitelist",help="""If you scan for domains, you can exclude benign domains with this parameter.
-                                                Add whitelist txt file path.""")
+    
     args=parser.parse_args()
 
     
@@ -199,8 +239,10 @@ def main():
         url_scanner(api,args.path,args.type)
 
     elif args.type in ("domain","Domain","DOMAIN"):
-        domain_scanner(api,args.path,args.type,args.whitelist)
+        domain_scanner(api,args.path,args.type)
 
+    elif args.type in ("ip","Ip","IP"):
+        ip_scanner(api,args.path,args.type)
     else:
         sys.exit("You entered wrong values.")
 
@@ -212,7 +254,8 @@ if __name__=="__main__":
     unscanned_hashes=list()
     unscanned_urls=list()
     unscanned_domains=list()
+    unscanned_ips=list()
     detected_iocs=list()
     detected_sampe_hashes=list()
     main()
-                          
+    
