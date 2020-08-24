@@ -61,7 +61,7 @@ def file_scanner(api,file_path,type_file):
 
     with open(file_path,"r",encoding="utf-8") as r_file:
         for hash in r_file.read().split():
-            response = requests.get(url+hash, headers=headers)
+            response = requests.get(url+hash.strip(), headers=headers)
             status = response.status_code
             
             if status == 200:
