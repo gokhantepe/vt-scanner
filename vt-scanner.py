@@ -72,7 +72,8 @@ def file_scanner(api,file_path,type_file):
                         print(f"""{hash} is malicious.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
-                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
                         VT Url for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
@@ -80,7 +81,8 @@ def file_scanner(api,file_path,type_file):
                         print(f"""{hash} is clean.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
-                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
                         VT Url for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
@@ -148,7 +150,8 @@ def domain_scanner(api,domain_path,type_domain):
                         print(f"""{domain} is malicious.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
-                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
                         VT Url for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
@@ -156,7 +159,8 @@ def domain_scanner(api,domain_path,type_domain):
                         print(f"""{domain} is clean.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
-                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
                         VT Url for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
@@ -194,7 +198,8 @@ def ip_scanner(api,ip_path,type_ip):
                         print(f"""{ip} is malicious.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
-                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
                         VT Url for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
@@ -202,7 +207,8 @@ def ip_scanner(api,ip_path,type_ip):
                         print(f"""{ip} is clean.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
-                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
+                        Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
                         VT Url for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
@@ -224,7 +230,16 @@ def ip_scanner(api,ip_path,type_ip):
 
 
 def main():
-    api = input("Enter your API key. ")
+    print("""Sample Usages:
+    python vt-scanner.py -t file -p hashes.txt
+    python vt-scanner.py -t domain -p domains.txt
+    python vt-scanner.py -t ip -p ips.txt
+    python vt-scanner.py -t url -p urls.txt
+
+    If you faced with errors please contact me on Twitter @gokhanntepe
+    """)
+
+    api = input("Enter your API key: ")
     print("\n\n")
 
     parser = argparse.ArgumentParser(description='You can submit multiple file hashes and urls with this script.')
