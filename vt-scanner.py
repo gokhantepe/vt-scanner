@@ -272,7 +272,5 @@ if __name__=="__main__":
     unscanned_urls=list()
     unscanned_domains=list()
     unscanned_ips=list()
-    detected_iocs=list()
-    detected_sampe_hashes=list()
     main()
     
