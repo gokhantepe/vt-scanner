@@ -73,7 +73,7 @@ def file_scanner(api,file_path,type_file):
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
-                        VT Url for domain: {values['data']['links']['self']}
+                        VT Url for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
                     else:
@@ -81,7 +81,7 @@ def file_scanner(api,file_path,type_file):
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
-                        VT Url for domain: {values['data']['links']['self']}
+                        VT Url for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
                 except Exception:
@@ -149,7 +149,7 @@ def domain_scanner(api,domain_path,type_domain):
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
-                        VT Url for domain: {values['data']['links']['self']}
+                        VT Url for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
                     else:
@@ -157,7 +157,7 @@ def domain_scanner(api,domain_path,type_domain):
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
-                        VT Url for domain: {values['data']['links']['self']}
+                        VT Url for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
                 except Exception:
@@ -172,6 +172,7 @@ def domain_scanner(api,domain_path,type_domain):
 
     if(len(unscanned_domains)==0):
         file_operations("domain_results\\unscanned_domains.txt","w","All domains succesfully scanned, congrats :)")
+
     else:
         file_operations("domain_results\\unscanned_domains.txt","w",unscanned_domains)
 
@@ -194,7 +195,7 @@ def ip_scanner(api,ip_path,type_ip):
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
-                        VT Url for domain: {values['data']['links']['self']}
+                        VT Url for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
                     else:
@@ -202,7 +203,7 @@ def ip_scanner(api,ip_path,type_ip):
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}\n
-                        VT IP for domain: {values['data']['links']['self']}
+                        VT Url for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
                 except Exception:
@@ -216,6 +217,7 @@ def ip_scanner(api,ip_path,type_ip):
 
     if(len(unscanned_ips)==0):
         file_operations("ip_results\\unscanned_ips.txt","w","All IPs succesfully scanned, congrats :)")
+
     else:
         file_operations("ip_results\\unscanned_ips.txt","w",unscanned_ips)
 
