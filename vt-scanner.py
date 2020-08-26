@@ -53,7 +53,7 @@ def errors(status,value_for_scan,scan_type):
         sys.exit("You are not allowed to perform the requested operation.")
 
     else:
-        sys.exit("Unkown HTTP error.\n" + str(status) + value_for_scan)
+        sys.exit("Unkown HTTP error.\n" + str(status))
 
 
 def file_scanner(api,file_path,type_file):
@@ -245,7 +245,7 @@ def ip_scanner(api,ip_path,type_ip):
             else:
                 print(errors(status,ip,type_ip))
 
-    file_operations("ip_results\\unscanned_domains.txt","w",unscanned_ips)
+    file_operations("ip_results\\unscanned_ips.txt","w",unscanned_ips)
 
     if(len(unscanned_ips)==0):
         file_operations("ip_results\\unscanned_ips.txt","w","All IPs succesfully scanned, congrats :)")
