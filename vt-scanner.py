@@ -14,7 +14,7 @@ def file_operations(file_name,operation_name,content):
 def errors(status,value_for_scan,scan_type):
     if status == 204:
         if scan_type=="file":
-            unscanned_hashes.append(value_for_scan+"\n")
+            unscanned_hashes.append(f"value_for_scan\n")
                 
             print("There is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
             time.sleep(45)
@@ -22,7 +22,7 @@ def errors(status,value_for_scan,scan_type):
             return f"{value_for_scan} is saved your current directory for next scan.\n\n"
 
         elif scan_type=="url":
-            unscanned_urls.append(value_for_scan+"\n")
+            unscanned_urls.append(f"value_for_scan\n")
             
             print("\nThere is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
             time.sleep(45)
@@ -30,7 +30,7 @@ def errors(status,value_for_scan,scan_type):
             return f"{value_for_scan} is saved your current directory for next scan.\n\n"
 
         elif scan_type=="domain":
-            unscanned_domains.append(value_for_scan+"\n")
+            unscanned_domains.append(f"value_for_scan\n")
             
             print("\nThere is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
             time.sleep(45)
@@ -38,7 +38,7 @@ def errors(status,value_for_scan,scan_type):
             return f"{value_for_scan} is saved your current directory for next scan.\n"
 
         elif scan_type=="ip":
-            unscanned_ips.append(value_for_scan+"\n")
+            unscanned_ips.append(f"value_for_scan\n")
             
             print("\nThere is no content in HTTP response. It may cause by rate-limiting. Sleeping for 45 seconds.")
             time.sleep(45)
@@ -53,7 +53,7 @@ def errors(status,value_for_scan,scan_type):
         sys.exit("You are not allowed to perform the requested operation.")
 
     else:
-        sys.exit("Unkown HTTP error.\n" + str(status))
+        sys.exit(f"Unkown HTTP error.\n{str(status)}")
 
 
 def file_scanner(api,file_path,type_file):
@@ -69,7 +69,7 @@ def file_scanner(api,file_path,type_file):
                 values = response.json()
                 
                 try:
-                    if values['data']['attributes']['last_analysis_stats']['malicious']>5:
+                    if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
                         print(f"""{hash} is malicious.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
@@ -88,15 +88,13 @@ def file_scanner(api,file_path,type_file):
                         """)
 
                 except Exception:
-                    # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
+                    # Possible error causes; not valid domain pattern or domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
                     print(values['error']['message'])
                         
                 time.sleep(15)
             
             else:
                 print(errors(status,hash,type_file))
-
-    file_operations("file_results\\unscanned_hashes.txt","w",unscanned_hashes)
 
     if(len(unscanned_hashes)==0):
         file_operations("file_results\\unscanned_hashes.txt","w","All hashes succesfully scanned, congrats :)")
@@ -120,7 +118,7 @@ def url_scanner(api,url_path,type_url):
                 values = response.json()
                 
                 try:
-                    if values['data']['attributes']['last_analysis_stats']['malicious']>5:
+                    if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
                         print(f"""{url_vt} is malicious.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
@@ -147,8 +145,6 @@ def url_scanner(api,url_path,type_url):
             else:
                 print(errors(status,url_vt,type_url))
 
-    file_operations("url_result\\unscanned_urls.txt","w",unscanned_urls)
-
     if(len(unscanned_urls)==0):
         file_operations("url_results\\unscanned_urls.txt","w","All urls succesfully scanned, congrats :)")
 
@@ -169,7 +165,7 @@ def domain_scanner(api,domain_path,type_domain):
                 values = response.json()
                 
                 try:
-                    if values['data']['attributes']['last_analysis_stats']['malicious']>5:
+                    if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
                         print(f"""{domain} is malicious.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
@@ -196,8 +192,6 @@ def domain_scanner(api,domain_path,type_domain):
             else:
                 print(errors(status,domain,type_domain))
 
-    file_operations("domain_results\\unscanned_domains.txt","w",unscanned_domains)
-
     if(len(unscanned_domains)==0):
         file_operations("domain_results\\unscanned_domains.txt","w","All domains succesfully scanned, congrats :)")
 
@@ -218,7 +212,7 @@ def ip_scanner(api,ip_path,type_ip):
                 values = response.json()
                 
                 try:
-                    if values['data']['attributes']['last_analysis_stats']['malicious']>5:
+                    if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
                         print(f"""{ip} is malicious.\n
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
@@ -244,8 +238,6 @@ def ip_scanner(api,ip_path,type_ip):
 
             else:
                 print(errors(status,ip,type_ip))
-
-    file_operations("ip_results\\unscanned_ips.txt","w",unscanned_ips)
 
     if(len(unscanned_ips)==0):
         file_operations("ip_results\\unscanned_ips.txt","w","All IPs succesfully scanned, congrats :)")
@@ -292,8 +284,6 @@ def main():
         
 
 if __name__=="__main__":
-    asterisk="\n\n************************************************************************************************************************************\n\n"
-    hypen="------------------------------------------------------------------------------------------------------------------------------------\n"
     unscanned_hashes=list()
     unscanned_urls=list()
     unscanned_domains=list()
