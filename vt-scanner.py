@@ -137,7 +137,7 @@ def url_scanner(api,url_path,type_url):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT link for domain: https://virustotal.com/gui/url/{values['data']['id']}/detection
+                        VT link for URL: https://virustotal.com/gui/url/{values['data']['id']}/detection
                         """)
 
                     else:
@@ -146,7 +146,7 @@ def url_scanner(api,url_path,type_url):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT link for domain: https://virustotal.com/gui/url/{values['data']['id']}/detection
+                        VT link for URL: https://virustotal.com/gui/url/{values['data']['id']}/detection
                         """)
 
                     report_urls.append((url_vt,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
