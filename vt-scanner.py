@@ -14,12 +14,12 @@ def file_operations(file_name,operation_name,content):
 
 def create_report(type_vt,file_name,operation_name,content):
     with open(file_name, mode='w', newline='') as csv_file:
-        fieldnames = [type_vt,'Harmless','Malicious','Suspicious','Undetected','Url']
+        fieldnames = [type_vt,'Harmless','Malicious','Suspicious','Undetected','Link']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';')
         
         writer.writeheader()
         for each in content:
-            writer.writerow({type_vt: each[0], 'Harmless': each[1], 'Malicious': each[2], 'Suspicious': each[3], 'Undetected': each[4], 'Url': each[5]})
+            writer.writerow({type_vt: each[0], 'Harmless': each[1], 'Malicious': each[2], 'Suspicious': each[3], 'Undetected': each[4], 'Link': each[5]})
 
 
 def errors(status,value_for_scan,scan_type,values):
@@ -83,7 +83,7 @@ def file_scanner(api,file_path,type_file):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
+                        VT link for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
                     else:
@@ -92,7 +92,7 @@ def file_scanner(api,file_path,type_file):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
+                        VT link for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
                     report_hashes.append((hash,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
@@ -137,7 +137,7 @@ def url_scanner(api,url_path,type_url):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for domain: https://virustotal.com/gui/url/{values['data']['id']}/detection
+                        VT link for domain: https://virustotal.com/gui/url/{values['data']['id']}/detection
                         """)
 
                     else:
@@ -146,7 +146,7 @@ def url_scanner(api,url_path,type_url):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for domain: https://virustotal.com/gui/url/{values['data']['id']}/detection
+                        VT link for domain: https://virustotal.com/gui/url/{values['data']['id']}/detection
                         """)
 
                     report_urls.append((url_vt,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
@@ -189,7 +189,7 @@ def domain_scanner(api,domain_path,type_domain):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for domain: https://virustotal.com/gui/domain/{domain}/detection
+                        VT link for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
                     else:
@@ -198,7 +198,7 @@ def domain_scanner(api,domain_path,type_domain):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for domain: https://virustotal.com/gui/domain/{domain}/detection
+                        VT link for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
                     report_domains.append((domain,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
@@ -241,7 +241,7 @@ def ip_scanner(api,ip_path,type_ip):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for IP: https://virustotal.com/gui/ip-address/{ip}/detection
+                        VT link for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
                     else:
@@ -250,7 +250,7 @@ def ip_scanner(api,ip_path,type_ip):
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
                         Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
-                        VT Url for IP: https://virustotal.com/gui/ip-address/{ip}/detection
+                        VT link for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
                     report_ips.append((ip,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
