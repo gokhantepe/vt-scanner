@@ -12,14 +12,14 @@ def file_operations(file_name,operation_name,content):
             file.write(each)
 
 
-def create_report(type_ip,file_name,operation_name,content):
+def create_report(type_vt,file_name,operation_name,content):
     with open(file_name, mode='w', newline='') as csv_file:
-        fieldnames = ['Ip','Harmless','Malicious','Suspicious','Undetected','Url']
+        fieldnames = [type_vt,'Harmless','Malicious','Suspicious','Undetected','Url']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';')
         
         writer.writeheader()
         for each in content:
-            writer.writerow({'Ip': each[0], 'Harmless': each[1], 'Malicious': each[2], 'Suspicious': each[3], 'Undetected': each[4], 'Url': each[5]})
+            writer.writerow({type_vt: each[0], 'Harmless': each[1], 'Malicious': each[2], 'Suspicious': each[3], 'Undetected': each[4], 'Url': each[5]})
 
 
 def errors(status,value_for_scan,scan_type,values):
