@@ -3,12 +3,23 @@ import time
 import argparse
 import sys
 import base64
+import csv
 
 
 def file_operations(file_name,operation_name,content):
     with open(file_name,operation_name,encoding="utf-8") as file:
         for each in content:
             file.write(each)
+
+
+def create_report(type_ip,file_name,operation_name,content):
+    with open(file_name, mode='w', newline='') as csv_file:
+        fieldnames = ['Ip','Harmless','Malicious','Suspicious','Undetected','Url']
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';')
+        
+        writer.writeheader()
+        for each in content:
+            writer.writerow({'Ip': each[0], 'Harmless': each[1], 'Malicious': each[2], 'Suspicious': each[3], 'Undetected': each[4], 'Url': each[5]})
 
 
 def errors(status,value_for_scan,scan_type,values):
@@ -84,6 +95,10 @@ def file_scanner(api,file_path,type_file):
                         VT Url for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
+                    report_hashes.append((hash,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
+                                      values['data']['attributes']['last_analysis_stats']['suspicious'],values['data']['attributes']['last_analysis_stats']['undetected'],
+                                      f"https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection"))
+
                 except Exception:
                     # Possible error causes; not valid domain pattern or domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
                     print(values['error']['message'])
@@ -92,6 +107,8 @@ def file_scanner(api,file_path,type_file):
             
             else:
                 print(errors(status,hash,type_file,values))
+
+    create_report(type_file,"file_results\\report_hashes.csv","w",report_hashes)
 
     if(len(unscanned_hashes)==0):
         file_operations("file_results\\unscanned_hashes.txt","w","All hashes succesfully scanned, congrats :)")
@@ -132,6 +149,10 @@ def url_scanner(api,url_path,type_url):
                         VT Url for domain: https://virustotal.com/gui/url/{values['data']['id']}/detection
                         """)
 
+                    report_urls.append((url_vt,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
+                                      values['data']['attributes']['last_analysis_stats']['suspicious'],values['data']['attributes']['last_analysis_stats']['undetected'],
+                                      f"https://virustotal.com/gui/url/{values['data']['id']}/detection"))
+
                 except Exception:
                     # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
                     print(values['error']['message'])
@@ -140,6 +161,8 @@ def url_scanner(api,url_path,type_url):
             
             else:
                 print(errors(status,url_vt,type_url,values))
+
+    create_report(type_url,"url_results\\report_urls.csv","w",report_urls)
 
     if(len(unscanned_urls)==0):
         file_operations("url_results\\unscanned_urls.txt","w","All urls succesfully scanned, congrats :)")
@@ -178,6 +201,10 @@ def domain_scanner(api,domain_path,type_domain):
                         VT Url for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
+                    report_domains.append((domain,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
+                                      values['data']['attributes']['last_analysis_stats']['suspicious'],values['data']['attributes']['last_analysis_stats']['undetected'],
+                                      f"https://virustotal.com/gui/domain/{domain}/detection"))
+
                 except Exception:
                     # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
                     print(values['error']['message'])
@@ -186,6 +213,8 @@ def domain_scanner(api,domain_path,type_domain):
 
             else:
                 print(errors(status,domain,type_domain,values))
+
+    create_report(type_domain,"domain_results\\report_domains.csv","w",report_domains)
 
     if(len(unscanned_domains)==0):
         file_operations("domain_results\\unscanned_domains.txt","w","All domains succesfully scanned, congrats :)")
@@ -224,6 +253,10 @@ def ip_scanner(api,ip_path,type_ip):
                         VT Url for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
+                    report_ips.append((ip,values['data']['attributes']['last_analysis_stats']['harmless'],values['data']['attributes']['last_analysis_stats']['malicious'],
+                                      values['data']['attributes']['last_analysis_stats']['suspicious'],values['data']['attributes']['last_analysis_stats']['undetected'],
+                                      f"https://virustotal.com/gui/ip-address/{ip}/detection"))
+
                 except Exception:
                     # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
                     print(values['error']['message'])
@@ -232,6 +265,8 @@ def ip_scanner(api,ip_path,type_ip):
 
             else:
                 print(errors(status,ip,type_ip,values))
+
+    create_report(type_ip,"ip_results\\report_ips.csv","w",report_ips)
 
     if(len(unscanned_ips)==0):
         file_operations("ip_results\\unscanned_ips.txt","w","All IPs succesfully scanned, congrats :)")
@@ -277,9 +312,13 @@ def main():
         
 
 if __name__=="__main__":
-    unscanned_hashes=list()
-    unscanned_urls=list()
-    unscanned_domains=list()
-    unscanned_ips=list()
+    unscanned_hashes = list()
+    unscanned_urls = list()
+    unscanned_domains = list()
+    unscanned_ips = list()
+    report_hashes = list()
+    report_urls = list()
+    report_domains = list()
+    report_ips = list()
     main()
     
