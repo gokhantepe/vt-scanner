@@ -6,6 +6,15 @@ import base64
 import csv
 
 
+class colors:  
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    END = '\033[0m'
+    BLUE = '\033[94m'
+    UNDERLINE = '\033[4m'
+
+
 def file_operations(file_name,operation_name,content):
     with open(file_name,operation_name,encoding="utf-8") as file:
         for each in content:
@@ -24,7 +33,7 @@ def create_report(type_vt,file_name,operation_name,content):
 
 def errors(status,value_for_scan,scan_type,values):
     if status in (404, 429):
-        print(f"""Error Code: {values['error']['code']}\nError Description: {values['error']['message']}\n""")
+        print(f"""{colors.YELLOW}Error Code: {values['error']['code']}\nError Description: {values['error']['message']}{colors.END}""")
         
         if scan_type=="file":
             unscanned_hashes.append(f"{value_for_scan}\n")
@@ -32,7 +41,7 @@ def errors(status,value_for_scan,scan_type,values):
             print("Sleeping for 45 seconds.")
             time.sleep(45)
             
-            return f"{value_for_scan} is saved '/file_results' directory for next scan.\n\n"
+            return f"{colors.YELLOW}{value_for_scan} is saved '/file_results' directory for next scan.{colors.END}\n"
 
         elif scan_type=="url":
             unscanned_urls.append(f"{value_for_scan}\n")
@@ -40,7 +49,7 @@ def errors(status,value_for_scan,scan_type,values):
             print("Sleeping for 45 seconds.")
             time.sleep(45)
 
-            return f"{value_for_scan} is saved '/url_results' directory for next scan.\n\n"
+            return f"{colors.YELLOW}{value_for_scan} is saved '/url_results' directory for next scan.{colors.END}\n"
 
         elif scan_type=="domain":
             unscanned_domains.append(f"{value_for_scan}\n")
@@ -48,7 +57,7 @@ def errors(status,value_for_scan,scan_type,values):
             print("Sleeping for 45 seconds.")
             time.sleep(45)
 
-            return f"{value_for_scan} is saved '/domain_results' directory for next scan.\n"
+            return f"{colors.YELLOW}{value_for_scan} is saved '/domain_results' directory for next scan.{colors.END}\n"
 
         elif scan_type=="ip":
             unscanned_ips.append(f"{value_for_scan}\n")
@@ -56,13 +65,13 @@ def errors(status,value_for_scan,scan_type,values):
             print("Sleeping for 45 seconds.")
             time.sleep(45)
 
-            return f"{value_for_scan} is saved '/ip_results' directory for next scan.\n"
+            return f"{colors.YELLOW}{value_for_scan} is saved '/ip_results' directory for next scan.{colors.END}\n"
             
     elif status in (400, 401, 403, 409, 503, 504):            
-        sys.exit(f"""Error Code: {values['error']['code']}\nError Description: {values['error']['message']}""")
+        return f"""{colors.YELLOW}Error Code: {values['error']['code']}\nError Description: {values['error']['message']}{colors.END}\n"""
     
     else:
-        sys.exit(f"This is unknown error. I will be appreciated if you contact me about this problem.\n\n Response: {values}")
+        return f"{colors.YELLOW}This is unknown error. I will be appreciated if you contact me about this problem.\nResponse: {values}{colors.END}"
 
 
 def file_scanner(api,file_path,type_file):
@@ -78,20 +87,20 @@ def file_scanner(api,file_path,type_file):
             if status == 200:                
                 try:
                     if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
-                        print(f"""{hash} is malicious.\n
+                        print(f"""{colors.RED}{hash} is malicious.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
                     else:
-                        print(f"""{hash} is clean.\n
+                        print(f"""{colors.GREEN}{hash} is clean.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for file hash: https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection
                         """)
 
@@ -100,8 +109,8 @@ def file_scanner(api,file_path,type_file):
                                       f"https://virustotal.com/gui/file/{values['data']['attributes']['sha256']}/detection"))
 
                 except Exception:
-                    # Possible error causes; not valid domain pattern or domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
-                    print(values['error']['message'])
+                    # Possible error causes; not valid hash pattern or hash not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
+                    print(f"{colors.YELLOW}values['error']['message']{colors.END}")
                         
                 time.sleep(15)
             
@@ -132,20 +141,20 @@ def url_scanner(api,url_path,type_url):
             if status == 200:
                 try:
                     if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
-                        print(f"""{url_vt} is malicious.\n
+                        print(f"""{colors.RED}{url_vt} is malicious.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for URL: https://virustotal.com/gui/url/{values['data']['id']}/detection
                         """)
 
                     else:
-                        print(f"""{url_vt} is clean.\n
+                        print(f"""{colors.GREEN}{url_vt} is clean.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for URL: https://virustotal.com/gui/url/{values['data']['id']}/detection
                         """)
 
@@ -154,8 +163,8 @@ def url_scanner(api,url_path,type_url):
                                       f"https://virustotal.com/gui/url/{values['data']['id']}/detection"))
 
                 except Exception:
-                    # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
-                    print(values['error']['message'])
+                    # Possible error causes; not valid url pattern or url not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
+                    print(f"{colors.YELLOW}values['error']['message']{colors.END}")
                     
                 time.sleep(15)
             
@@ -184,20 +193,20 @@ def domain_scanner(api,domain_path,type_domain):
             if status == 200:                
                 try:
                     if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
-                        print(f"""{domain} is malicious.\n
+                        print(f"""{colors.YELLOW}{domain} is malicious.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
                     else:
-                        print(f"""{domain} is clean.\n
+                        print(f"""{colors.GREEN}{domain} is clean.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for domain: https://virustotal.com/gui/domain/{domain}/detection
                         """)
 
@@ -207,7 +216,7 @@ def domain_scanner(api,domain_path,type_domain):
 
                 except Exception:
                     # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
-                    print(values['error']['message'])
+                    print(f"{colors.YELLOW}values['error']['message']{colors.END}")
                     
                 time.sleep(15)
 
@@ -236,20 +245,20 @@ def ip_scanner(api,ip_path,type_ip):
             if status == 200:
                 try:
                     if values['data']['attributes']['last_analysis_stats']['malicious'] > 0:
-                        print(f"""{ip} is malicious.\n
+                        print(f"""{colors.RED}{ip} is malicious.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
                     else:
-                        print(f"""{ip} is clean.\n
+                        print(f"""{colors.GREEN}{ip} is clean.{colors.END}
                         Harmless: {values['data']['attributes']['last_analysis_stats']['harmless']}
                         Malicious: {values['data']['attributes']['last_analysis_stats']['malicious']}
                         Suspicious: {values['data']['attributes']['last_analysis_stats']['suspicious']}
-                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}\n
+                        Undetected: {values['data']['attributes']['last_analysis_stats']['undetected']}
                         VT link for IP: https://virustotal.com/gui/ip-address/{ip}/detection
                         """)
 
@@ -258,8 +267,8 @@ def ip_scanner(api,ip_path,type_ip):
                                       f"https://virustotal.com/gui/ip-address/{ip}/detection"))
 
                 except Exception:
-                    # Possible error causes; not valid domain pattern or Domain not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
-                    print(values['error']['message'])
+                    # Possible error causes; not valid ip pattern or ip not found in VT Database. If the reasons is not these, please don't be hesitate for contact me.
+                    print(f"{colors.YELLOW}values['error']['message']{colors.END}")
                     
                 time.sleep(15)
 
@@ -277,16 +286,29 @@ def ip_scanner(api,ip_path,type_ip):
 
 
 def main():
-    print("""Sample Usages:
-    python vt-scanner.py -t file -p hashes.txt
-    python vt-scanner.py -t domain -p domains.txt
-    python vt-scanner.py -t ip -p ips.txt
-    python vt-scanner.py -t url -p urls.txt
+    print(f"""
+        {colors.RED}                                                                                                                                       
+                                               ``           ``                                                                              
+       .ohhho.  .ohy+-hysoyhhyoshh`        `:ssooshy`   -+ysooyy-     `yhh-     -shhy.   :yh+` /hhh+   `+hy: .ohhhoooshh  /hhhsosss+.       
+        `dMMo    +Mo -mo` sMMy `sm.        yMM-   sm` `yNN:   :m/     smMMd`     +MNMm-   yM`   mMMMs`  `My   -MMM   `ym   mMM:  -NMN.      
+         :MMN`  .my   .   sMMy   .         hMMh:.  `  sMMs     `     /N-yMM+     +M+mMN/  yM    mhsMMh. `Ms   -MMM  .+``   mMM:   mMM:      
+          yMMs  hd`       sMMy      ----.  .smMMmh/`  NMM/          -N/ .NMN.    +M--dMNo yM    md +NMm- Ms   -MMMoodM`    mMMo:/yNh/       
+          `NMN-+N.        sMMy     `ddddy    `-+dMMd` mMM+         `mm+++hMMy    +M- .hMMsyM    md  :NMN:Ms   -MMM``-s     mMMo:yMNs`       
+           +MMdN/         sMMy      ````` `s-   `mMM. +MMh    `s-  hm.....mMM:   +M-  `sMMNM    md   -dMNMs   -MMM    /y`  mMM:  sMMd`      
+            hMMo         -dMMd-           .Nm+::oNd/   /dNh/:/dN/-yMh.   .hMMm: .yMo`   +NMM   :NN-   .hMMs  `oMMM///oNN  :NMMs` `sMMd:     
+            `--          ..--..            .--::-.`     `.--:--.``.-.`   `.---. `.-.`    .-.   .--.    `.-`  `.--------.  .---.`   .--.     
+                                                                                                                                            
+        {colors.END}                                                                                                                                        
+    Sample Usages:
+    * python vt-scanner.py -t file -p hashes.txt
+    * python vt-scanner.py -t domain -p domains.txt
+    * python vt-scanner.py -t ip -p ips.txt
+    * python vt-scanner.py -t url -p urls.txt\n
     If you faced with errors please contact me on Twitter @gokhanntepe
     """)
 
     api = input("Enter your API key: ")
-    print("\n\n")
+    print("\n")
 
     parser = argparse.ArgumentParser(description='You can submit multiple file hashes and urls with this script.')
     parser.add_argument("-t","--type",help="You should type what you want for submitting VT (url or file or domain).",required=True)
